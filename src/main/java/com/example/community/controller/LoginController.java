@@ -3,13 +3,23 @@ package com.example.community.controller;
 import com.example.community.entity.User;
 import com.example.community.service.UserService;
 import com.example.community.util.CommunityConstant;
+import com.google.code.kaptcha.Producer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Map;
 
 /**
@@ -21,6 +31,11 @@ public class LoginController implements CommunityConstant {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private Producer kaptchaproducer;
+
+    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
     @RequestMapping(path = "/register", method = RequestMethod.GET)
     public String getRegisiterPage() {
@@ -62,4 +77,24 @@ public class LoginController implements CommunityConstant {
         }
         return "/site/operate-result";
     }
+
+    @GetMapping("/kaptcha")
+    public void getkaptcha(HttpServletResponse response, HttpSession session) {
+        //生成验证码
+        String text = kaptchaproducer.createText();//得到随机字符串
+        BufferedImage image = kaptchaproducer.createImage(text);//根据字符串生成验证码图片
+
+        //将验证码存入session
+        session.setAttribute("kaptcha", text);
+
+        //将图片输出给浏览器
+        response.setContentType("image/png");//声明返回的是png类型的图片
+        try {
+            OutputStream outputStream = response.getOutputStream();
+            ImageIO.write(image, "png", outputStream);
+        } catch (IOException e) {
+            logger.error("响应验证码失败:" + e.getMessage());
+        }
+    }
+
 }
