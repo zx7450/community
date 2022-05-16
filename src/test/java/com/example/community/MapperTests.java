@@ -42,7 +42,7 @@ public class MapperTests {
         user.setUsername("test");
         user.setPassword("123456");
         user.setSalt("abc");
-        user.setEmail("test#qq.com");
+        user.setEmail("test@qq.com");
         user.setHeaderUrl("http://www.nowcoder.com/101.png");
         user.setCreateTime(new Date());
         int rows=userMapper.insertUser(user);//返回行数

@@ -1,14 +1,17 @@
 package com.example.community.controller;
 
 import com.example.community.service.AlphaService;
+import com.example.community.util.CommunityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
@@ -75,7 +78,7 @@ public class AlaphaController {
     }
 
     // /student/123
-    @RequestMapping(path = "student/{id}",method = RequestMethod.GET)
+    @RequestMapping(path = "student/{id}", method = RequestMethod.GET)
     @ResponseBody
     public String getstudent(@PathVariable("id") int id) {//使用路径变量
         System.out.println(id);
@@ -83,62 +86,101 @@ public class AlaphaController {
     }
 
     // POST请求
-    @RequestMapping(path = "/student",method = RequestMethod.POST)
+    @RequestMapping(path = "/student", method = RequestMethod.POST)
     @ResponseBody
-    public String savestudent(String name,int age) {//和表单中数据名一致就可以传，也可以加@RequestParam注解
+    public String savestudent(String name, int age) {//和表单中数据名一致就可以传，也可以加@RequestParam注解
         System.out.println(name);
         System.out.println(age);
         return "success";
     }
 
     //响应HTML数据
-    @RequestMapping(path = "/teacher",method = RequestMethod.GET)//返回HTML就不要加ResponseBody注解
+    @RequestMapping(path = "/teacher", method = RequestMethod.GET)//返回HTML就不要加ResponseBody注解
     public ModelAndView getteacher() {
-        ModelAndView mav=new ModelAndView();
-        mav.addObject("name","张三");
-        mav.addObject("age",30);
+        ModelAndView mav = new ModelAndView();
+        mav.addObject("name", "张三");
+        mav.addObject("age", 30);
         mav.setViewName("/demo/view");//指的是template文件夹下的demo/view.html
         return mav;
     }
 
-    @RequestMapping(path = "/school",method = RequestMethod.GET)
+    @RequestMapping(path = "/school", method = RequestMethod.GET)
     public String getSchool(Model model) {//效果和上一个方法相同，建议采用这种，更简洁
-        model.addAttribute("name","北京大学");
-        model.addAttribute("age",80);
+        model.addAttribute("name", "北京大学");
+        model.addAttribute("age", 80);
         return "/demo/view";
     }
 
     //响应json数据（异步请求）
     // JAva对象-》浏览器用JS解析对象，需要通过JSON实现两者的兼容，即Java对象->JSON对象->JS对象
-    @RequestMapping(path = "/emp",method = RequestMethod.GET)
+    @RequestMapping(path = "/emp", method = RequestMethod.GET)
     @ResponseBody
-    public Map<String,Object> getEmp() {
-        Map<String,Object> emp=new HashMap<>();
-        emp.put("name","张三");
-        emp.put("age",23);
-        emp.put("salaer",8000.00);
+    public Map<String, Object> getEmp() {
+        Map<String, Object> emp = new HashMap<>();
+        emp.put("name", "张三");
+        emp.put("age", 23);
+        emp.put("salaer", 8000.00);
         return emp;
     }
 
-    @RequestMapping(path = "/emps",method = RequestMethod.GET)
+    @RequestMapping(path = "/emps", method = RequestMethod.GET)
     @ResponseBody
-    public List<Map<String,Object>> getEmps() {//返回json集合
-        List<Map<String,Object>> list=new ArrayList<>();
-        Map<String,Object> emp=new HashMap<>();
-        emp.put("name","张三");
-        emp.put("age",23);
-        emp.put("salaer",8000.00);
+    public List<Map<String, Object>> getEmps() {//返回json集合
+        List<Map<String, Object>> list = new ArrayList<>();
+        Map<String, Object> emp = new HashMap<>();
+        emp.put("name", "张三");
+        emp.put("age", 23);
+        emp.put("salaer", 8000.00);
         list.add(emp);
-        emp=new HashMap<>();
-        emp.put("name","李四");
-        emp.put("age",24);
-        emp.put("salaer",9000.00);
+        emp = new HashMap<>();
+        emp.put("name", "李四");
+        emp.put("age", 24);
+        emp.put("salaer", 9000.00);
         list.add(emp);
-        emp=new HashMap<>();
-        emp.put("name","王五");
-        emp.put("age",25);
-        emp.put("salaer",10000.00);
+        emp = new HashMap<>();
+        emp.put("name", "王五");
+        emp.put("age", 25);
+        emp.put("salaer", 10000.00);
         list.add(emp);
         return list;
+    }
+
+    //cookie示例
+    @GetMapping("/cookie/set")
+    @ResponseBody
+    public String setCookie(HttpServletResponse response) {
+        //创建cookie
+        Cookie cookie = new Cookie("code", CommunityUtil.generateUUID());
+        //设置cookie生效的范围
+        cookie.setPath("/community/alpha");
+        //设置cookie的生成时间
+        cookie.setMaxAge(60 * 10);
+        //发送cookie
+        response.addCookie(cookie);
+        return "set cookie";
+    }
+
+    @GetMapping("/cookie/get")
+    @ResponseBody
+    public String getCookie(@CookieValue("code") String code) {
+        System.out.println(code);
+        return "get cookie";
+    }
+
+    //session示例
+    @GetMapping("/session/set")
+    @ResponseBody
+    public String setSession(HttpSession session) {
+        session.setAttribute("id", 1);
+        session.setAttribute("name", "Test");
+        return "set session";
+    }
+
+    @GetMapping("/session/get")
+    @ResponseBody
+    public String getSession(HttpSession session) {
+        System.out.println(session.getAttribute("id"));
+        System.out.println(session.getAttribute("name"));
+        return "get session";
     }
 }

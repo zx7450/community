@@ -13,10 +13,10 @@ import org.springframework.test.context.ContextConfiguration;
 @SpringBootTest
 @ContextConfiguration(classes = CommunityApplication.class)
 public class LoggerTests {
-    private static final Logger logger= LoggerFactory.getLogger(LoggerTests.class);
+    private static final Logger logger = LoggerFactory.getLogger(LoggerTests.class);
 
     @Test
-    public void testLogger(){
+    public void testLogger() {
         System.out.println(logger.getName());
         logger.debug("debug log");
         logger.info("info log");
