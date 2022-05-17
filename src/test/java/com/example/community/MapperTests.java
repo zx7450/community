@@ -1,8 +1,10 @@
 package com.example.community;
 
 import com.example.community.dao.DisscussPostMapper;
+import com.example.community.dao.LoginTicketMapper;
 import com.example.community.dao.UserMapper;
 import com.example.community.entity.DiscussPost;
+import com.example.community.entity.LoginTicket;
 import com.example.community.entity.User;
 import lombok.Data;
 import org.junit.jupiter.api.Test;
@@ -26,48 +28,71 @@ public class MapperTests {
     @Autowired
     private DisscussPostMapper disscussPostMapper;
 
+    @Autowired
+    private LoginTicketMapper loginTicketMapper;
+
     @Test
-    public void testselectUser(){
-        User user=userMapper.selectById(101);
+    public void testselectUser() {
+        User user = userMapper.selectById(101);
         System.out.println(user);
-        user=userMapper.selectByName("liubei");
+        user = userMapper.selectByName("liubei");
         System.out.println(user);
-        user=userMapper.selectByEmail("nowcoder102@sina.com");
+        user = userMapper.selectByEmail("nowcoder102@sina.com");
         System.out.println(user);
     }
 
     @Test
     public void testInsertUser() {
-        User user=new User();
+        User user = new User();
         user.setUsername("test");
         user.setPassword("123456");
         user.setSalt("abc");
         user.setEmail("test@qq.com");
         user.setHeaderUrl("http://www.nowcoder.com/101.png");
         user.setCreateTime(new Date());
-        int rows=userMapper.insertUser(user);//返回行数
+        int rows = userMapper.insertUser(user);//返回行数
         System.out.println(rows);
         System.out.println(user.getId());
     }
 
     @Test
     public void testupdateUser() {
-        int row=userMapper.updateStatus(150,1);
+        int row = userMapper.updateStatus(150, 1);
         System.out.println(row);
-        row=userMapper.updateHeader(150,"http://www.nowcoder.com/102.png");
+        row = userMapper.updateHeader(150, "http://www.nowcoder.com/102.png");
         System.out.println(row);
-        row=userMapper.updatePassword(150,"hello");
+        row = userMapper.updatePassword(150, "hello");
         System.out.println(row);
     }
 
     @Test
     public void testSelectPosts() {
-        List<DiscussPost> discussPosts=disscussPostMapper.selectDisscussPosts(149,0,10);
+        List<DiscussPost> discussPosts = disscussPostMapper.selectDisscussPosts(149, 0, 10);
         for (Iterator<DiscussPost> iterator = discussPosts.iterator(); iterator.hasNext(); ) {
-            DiscussPost next =  iterator.next();
+            DiscussPost next = iterator.next();
             System.out.println(next);
         }
-        int rows=disscussPostMapper.selectDiscussPostRows(149);
+        int rows = disscussPostMapper.selectDiscussPostRows(149);
         System.out.println(rows);
+    }
+
+    @Test
+    public void testInsertLoginTicket() {
+        LoginTicket loginTicket = new LoginTicket();
+        loginTicket.setUserId(101);
+        loginTicket.setTicket("abc");
+        loginTicket.setStatus(0);
+        loginTicket.setExpired(new Date(System.currentTimeMillis() + 1000 * 60 * 10));
+
+        loginTicketMapper.insertLoginTicket(loginTicket);
+    }
+
+    @Test
+    public void testSelectLoginTicket() {
+        LoginTicket loginTicket = loginTicketMapper.selectByTicket("abc");
+        System.out.println(loginTicket);
+        loginTicketMapper.updateStatus("abc", 1);
+        loginTicket = loginTicketMapper.selectByTicket("abc");
+        System.out.println(loginTicket);
     }
 }
