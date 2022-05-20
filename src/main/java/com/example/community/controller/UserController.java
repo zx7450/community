@@ -1,5 +1,6 @@
 package com.example.community.controller;
 
+import com.example.community.annotation.LoginRequired;
 import com.example.community.entity.User;
 import com.example.community.service.UserService;
 import com.example.community.util.CommunityUtil;
@@ -48,11 +49,13 @@ public class UserController {
     @Value("${server.servlet.context-path}")
     private String contextPath;
 
+    @LoginRequired//自定义的注解
     @GetMapping("/setting")
     public String getSettingPage() {
         return "/site/setting";
     }
 
+    @LoginRequired
     @PostMapping("/upload")
     public String uploadHeader(MultipartFile headerImage, Model model) {
         if (headerImage == null) {
@@ -109,14 +112,14 @@ public class UserController {
     }
 
     @PostMapping("/updatepassowrd")
-    public String updatePassword(String oldPassword,String newPassword,Model model) {
-        User user=hostHolder.getUser();
-        Map<String,Object> map=userService.updatePassword(user.getId(),oldPassword,newPassword);
+    public String updatePassword(String oldPassword, String newPassword, Model model) {
+        User user = hostHolder.getUser();
+        Map<String, Object> map = userService.updatePassword(user.getId(), oldPassword, newPassword);
         if (map.containsKey("success")) {
             return "redirect:/index";
         } else {
-            model.addAttribute("oldpasswordMsg",map.get("oldpasswordMsg"));
-            model.addAttribute("newpasswordMsg",map.get("newpasswordMsg"));
+            model.addAttribute("oldpasswordMsg", map.get("oldpasswordMsg"));
+            model.addAttribute("newpasswordMsg", map.get("newpasswordMsg"));
             return "/site/setting";
         }
     }

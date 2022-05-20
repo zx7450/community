@@ -163,11 +163,11 @@ public class UserService implements CommunityConstant {
         return loginTicketMapper.selectByTicket(ticket);
     }
 
-    public int updateHeader(int userId,String headerUrl) {
-        return userMapper.updateHeader(userId,headerUrl);
+    public int updateHeader(int userId, String headerUrl) {
+        return userMapper.updateHeader(userId, headerUrl);
     }
 
-    public Map<String,Object> updatePassword(int userId,String oldPassword,String newPassword) {
+    public Map<String, Object> updatePassword(int userId, String oldPassword, String newPassword) {
         Map<String, Object> map = new HashMap<>();
         if (StringUtils.isBlank(oldPassword)) {
             map.put("oldpasswordMsg", "原始密码不能为空！");
@@ -179,15 +179,15 @@ public class UserService implements CommunityConstant {
             return map;
         }
 
-        User user=userMapper.selectById(userId);
+        User user = userMapper.selectById(userId);
         //验证旧密码
-        oldPassword=CommunityUtil.md5(oldPassword+user.getSalt());
+        oldPassword = CommunityUtil.md5(oldPassword + user.getSalt());
         if (!user.getPassword().equals(oldPassword)) {
             map.put("oldpasswordMsg", "原始密码不正确！");
             return map;
         }
-        userMapper.updatePassword(userId,CommunityUtil.md5(newPassword+user.getSalt()));
-        map.put("success","修改成功!");
+        userMapper.updatePassword(userId, CommunityUtil.md5(newPassword + user.getSalt()));
+        map.put("success", "修改成功!");
         return map;
     }
 }
