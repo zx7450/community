@@ -50,11 +50,11 @@ public class DiscussPostController {
     @GetMapping("/detail/{discussPostId}")
     public String getDiscussPost(@PathVariable("discussPostId") int discussPostId, Model model) {
         //帖子
-        DiscussPost discussPost= discussPostService.findDiscussPostById(discussPostId);
-        model.addAttribute("post",discussPost);
+        DiscussPost discussPost = discussPostService.findDiscussPostById(discussPostId);
+        model.addAttribute("post", discussPost);
         //查询帖子的作者以获取作者的详细信息用于显示
-        User user=userService.findUserById(discussPost.getUserId());
-        model.addAttribute("user",user);
+        User user = userService.findUserById(discussPost.getUserId());
+        model.addAttribute("user", user);
 
         return "/site/discuss-detail";
     }
