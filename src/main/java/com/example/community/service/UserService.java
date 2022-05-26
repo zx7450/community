@@ -191,10 +191,10 @@ public class UserService implements CommunityConstant {
         return map;
     }
 
-    public Map<String,Object> forgetPassword(String email,String newpassword) {
-        Map<String,Object> map=new HashMap<>();
-        User user=userMapper.selectByEmail(email);
-        if (user==null) {
+    public Map<String, Object> forgetPassword(String email, String newpassword) {
+        Map<String, Object> map = new HashMap<>();
+        User user = userMapper.selectByEmail(email);
+        if (user == null) {
             if (user == null) {
                 map.put("emailMsg", "该账号不存在！");
                 return map;
@@ -204,8 +204,12 @@ public class UserService implements CommunityConstant {
             map.put("newpasswordMsg", "新密码不能为空！");
             return map;
         }
-        userMapper.updatePassword(user.getId(),CommunityUtil.md5(newpassword+user.getSalt()));
-        map.put("success","修改密码成功");
+        userMapper.updatePassword(user.getId(), CommunityUtil.md5(newpassword + user.getSalt()));
+        map.put("success", "修改密码成功");
         return map;
+    }
+
+    public User findUserByName(String username) {
+        return userMapper.selectByName(username);
     }
 }
