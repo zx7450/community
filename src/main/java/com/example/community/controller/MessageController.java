@@ -138,4 +138,12 @@ public class MessageController {
 
         return CommunityUtil.getJSONString(0);
     }
+
+    @PostMapping("/letter/delete/{id}")
+    @ResponseBody
+    public String deleteLetter(@PathVariable("id") int id) {
+        messageService.deleteMessage(id);
+        return CommunityUtil.getJSONString(0);
+    }
+
 }
