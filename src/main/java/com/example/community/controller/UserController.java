@@ -2,6 +2,7 @@ package com.example.community.controller;
 
 import com.example.community.annotation.LoginRequired;
 import com.example.community.entity.User;
+import com.example.community.service.LikeService;
 import com.example.community.service.UserService;
 import com.example.community.util.CommunityUtil;
 import com.example.community.util.HostHolder;
@@ -34,6 +35,9 @@ import java.util.Map;
 public class UserController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private LikeService likeService;
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -122,5 +126,22 @@ public class UserController {
             model.addAttribute("newpasswordMsg", map.get("newpasswordMsg"));
             return "/site/setting";
         }
+    }
+
+    //个人主页可查看自己的也可查看别人的，路径中应传入id
+    @GetMapping("/profile/{userId}")
+    public String getProfilePage(@PathVariable("userId") int userId, Model model) {
+        User user = userService.findUserById(userId);
+        if (user == null) {
+            throw new RuntimeException("该用户不存在!");
+        }
+
+        //用户
+        model.addAttribute("user", user);
+        //点赞数量
+        int likeCount = likeService.findUserLikeCount(userId);
+        model.addAttribute("likeCount", likeCount);
+
+        return "/site/profile";
     }
 }
