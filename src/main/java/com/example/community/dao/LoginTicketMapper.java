@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.*;
  * @date 2022/5/18 0:01
  */
 @Mapper
+@Deprecated//不推荐使用的注解，表示此方法已废弃、暂时可用，但以后此类或方法都不会再更新、后期可能会删除，建议后来人不要调用此方法，采用了redis存储ticket就不需要mysql操作
 public interface LoginTicketMapper {//也可以用注解声明方法对应的sql，此处为示例
 
     @Insert({

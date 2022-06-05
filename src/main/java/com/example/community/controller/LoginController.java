@@ -6,12 +6,14 @@ import com.example.community.service.UserService;
 import com.example.community.util.CommunityConstant;
 import com.example.community.util.CommunityUtil;
 import com.example.community.util.MailClient;
+import com.example.community.util.RedisKeyUtil;
 import com.google.code.kaptcha.Producer;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +28,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author zx
@@ -39,6 +42,9 @@ public class LoginController implements CommunityConstant {
 
     @Autowired
     private Producer kaptchaproducer;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Value("${server.servlet.context-path}")
     private String contextPath;
@@ -98,13 +104,23 @@ public class LoginController implements CommunityConstant {
     }
 
     @GetMapping("/kaptcha")
-    public void getkaptcha(HttpServletResponse response, HttpSession session) {
+    public void getkaptcha(HttpServletResponse response/*, HttpSession session*/) {
         //生成验证码
         String text = kaptchaproducer.createText();//得到随机字符串
         BufferedImage image = kaptchaproducer.createImage(text);//根据字符串生成验证码图片
 
         //将验证码存入session
-        session.setAttribute("kaptcha", text);
+        //session.setAttribute("kaptcha", text);
+
+        //验证码的归属
+        String kaptchaOwner = CommunityUtil.generateUUID();
+        Cookie cookie = new Cookie("kaptchaOwner", kaptchaOwner);
+        cookie.setMaxAge(60);//cookie过期时间1分钟
+        cookie.setPath(contextPath);//整个项目都有效
+        response.addCookie(cookie);
+        //将验证码存入Redis
+        String redisKey = RedisKeyUtil.getKaptchaKey(kaptchaOwner);
+        redisTemplate.opsForValue().set(redisKey, text, 60, TimeUnit.SECONDS);//过期时间设置为60秒
 
         //将图片输出给浏览器
         response.setContentType("image/png");//声明返回的是png类型的图片
@@ -118,9 +134,15 @@ public class LoginController implements CommunityConstant {
 
     @PostMapping("/login")
     public String login(String username, String password, String code, boolean rememberme,
-                        Model model, HttpSession session, HttpServletResponse response) {
+                        Model model, HttpSession session, HttpServletResponse response,
+                        @CookieValue("kaptchaOwner") String kaptchaOwner) {
         //验证验证码是否正确
-        String kaptcha = (String) session.getAttribute("kaptcha");//从session中取出验证码
+        //String kaptcha = (String) session.getAttribute("kaptcha");//从session中取出验证码
+        String kaptcha = null;
+        if (StringUtils.isNotBlank(kaptchaOwner)) {//说明cookie未失效
+            String redisKey = RedisKeyUtil.getKaptchaKey(kaptchaOwner);
+            kaptcha = (String) redisTemplate.opsForValue().get(redisKey);
+        }
         if (StringUtils.isBlank(kaptcha) || StringUtils.isBlank(code) || !kaptcha.equalsIgnoreCase(code)) {//比较时要忽略大小写
             model.addAttribute("codeMsg", "验证码不正确!");
             return "/site/login";
@@ -150,40 +172,40 @@ public class LoginController implements CommunityConstant {
 
     @GetMapping("/forget/code")
     @ResponseBody
-    public JSONObject getForgetCode(String email,HttpSession session) {
-        JSONObject jsonObject=new JSONObject();
+    public JSONObject getForgetCode(String email, HttpSession session) {
+        JSONObject jsonObject = new JSONObject();
         if (StringUtils.isBlank(email)) {
-            jsonObject.put("errorMsg","邮箱不能为空!");
+            jsonObject.put("errorMsg", "邮箱不能为空!");
             return jsonObject;
         }
 
         //发送验证码
-        Context context=new Context();
-        context.setVariable("email",email);
-        String code= CommunityUtil.generateUUID().substring(0,4);
-        context.setVariable("verifycode",code);
-        String content= templateEngine.process("/mail/forget",context);
-        mailClient.sendMail(email,"找回密码",content);
+        Context context = new Context();
+        context.setVariable("email", email);
+        String code = CommunityUtil.generateUUID().substring(0, 4);
+        context.setVariable("verifycode", code);
+        String content = templateEngine.process("/mail/forget", context);
+        mailClient.sendMail(email, "找回密码", content);
 
         //session保存验证码
-        session.setAttribute("verifycode",code);
-        jsonObject.put("success","获取验证码成功!");
+        session.setAttribute("verifycode", code);
+        jsonObject.put("success", "获取验证码成功!");
         return jsonObject;
     }
 
     @PostMapping("/forget/password")
-    public String resetPassowrd(String email,String code,String newpassword,HttpSession session,Model model) {
-        String verifycode=(String) session.getAttribute("verifycode");
-        if (StringUtils.isBlank(code)||StringUtils.isBlank(verifycode)||!code.equals(verifycode)) {
-            model.addAttribute("codeMsg","验证码错误");
+    public String resetPassowrd(String email, String code, String newpassword, HttpSession session, Model model) {
+        String verifycode = (String) session.getAttribute("verifycode");
+        if (StringUtils.isBlank(code) || StringUtils.isBlank(verifycode) || !code.equals(verifycode)) {
+            model.addAttribute("codeMsg", "验证码错误");
             return "/site/forget";
         }
-        Map<String,Object> map=userService.forgetPassword(email,newpassword);
+        Map<String, Object> map = userService.forgetPassword(email, newpassword);
         if (map.containsKey("success")) {
             return "redirect:/login";
         } else {
-            model.addAttribute("emailMsg",map.get("emailMsg"));
-            model.addAttribute("passwordMsg",map.get("passwordMsg"));
+            model.addAttribute("emailMsg", map.get("emailMsg"));
+            model.addAttribute("passwordMsg", map.get("passwordMsg"));
             return "/site/forget";
         }
     }
