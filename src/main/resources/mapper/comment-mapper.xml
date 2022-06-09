@@ -51,4 +51,9 @@
             select id from discuss_post where id = comment.entity_id and status != 2
           )
     </select>
+    <select id="selectCommentById" resultType="Comment">
+        select *
+        from comment
+        where id = #{id}
+    </select>
 </mapper>
