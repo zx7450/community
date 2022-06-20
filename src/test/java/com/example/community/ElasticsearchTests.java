@@ -156,7 +156,7 @@ public class ElasticsearchTests {
         res.put("total", total);
         if (res.get("list") != null) {
             for (DiscussPost post : list = (List<DiscussPost>) res.get("list")) {
-                System.out.println(post);
+                System.out.println(post);//输出的是匹配的一小部分
             }
             System.out.println(res.get("total"));
         }

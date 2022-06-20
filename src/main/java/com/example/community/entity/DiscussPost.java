@@ -16,7 +16,7 @@ import java.util.Date;
 @Data
 @Document(indexName = "discusspost")
 @Setting(shards = 6, replicas = 3)
-public class DiscussPost {
+public class  DiscussPost {
 
     @Id
     private int id;
