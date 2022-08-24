@@ -51,15 +51,15 @@ public class ElasticsearchTests {
 
     @Test
     public void testInsertList() {
-        discussPostRepository.saveAll(disscussPostMapper.selectDisscussPosts(101, 0, 100));
-        discussPostRepository.saveAll(disscussPostMapper.selectDisscussPosts(102, 0, 100));
-        discussPostRepository.saveAll(disscussPostMapper.selectDisscussPosts(103, 0, 100));
-        discussPostRepository.saveAll(disscussPostMapper.selectDisscussPosts(111, 0, 100));
-        discussPostRepository.saveAll(disscussPostMapper.selectDisscussPosts(112, 0, 100));
-        discussPostRepository.saveAll(disscussPostMapper.selectDisscussPosts(131, 0, 100));
-        discussPostRepository.saveAll(disscussPostMapper.selectDisscussPosts(132, 0, 100));
-        discussPostRepository.saveAll(disscussPostMapper.selectDisscussPosts(133, 0, 100));
-        discussPostRepository.saveAll(disscussPostMapper.selectDisscussPosts(134, 0, 100));
+        discussPostRepository.saveAll(disscussPostMapper.selectDisscussPosts(101, 0, 100,0));
+        discussPostRepository.saveAll(disscussPostMapper.selectDisscussPosts(102, 0, 100,0));
+        discussPostRepository.saveAll(disscussPostMapper.selectDisscussPosts(103, 0, 100,0));
+        discussPostRepository.saveAll(disscussPostMapper.selectDisscussPosts(111, 0, 100,0));
+        discussPostRepository.saveAll(disscussPostMapper.selectDisscussPosts(112, 0, 100,0));
+        discussPostRepository.saveAll(disscussPostMapper.selectDisscussPosts(131, 0, 100,0));
+        discussPostRepository.saveAll(disscussPostMapper.selectDisscussPosts(132, 0, 100,0));
+        discussPostRepository.saveAll(disscussPostMapper.selectDisscussPosts(133, 0, 100,0));
+        discussPostRepository.saveAll(disscussPostMapper.selectDisscussPosts(134, 0, 100,0));
     }
 
     @Test

@@ -6,8 +6,12 @@ import com.example.community.dao.UserMapper;
 import com.example.community.entity.DiscussPost;
 import com.example.community.entity.User;
 import com.example.community.util.CommunityUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
@@ -28,6 +32,8 @@ import java.util.Date;
 @Service//增加service注解给容器管理
 //@Scope("prototype") //每次访问bean都会补充新的实例
 public class AlphaService {
+
+    private static final Logger logger= LoggerFactory.getLogger(AlphaService.class);
 
     @Autowired
     private Alphadao alphadao;
@@ -117,5 +123,16 @@ public class AlphaService {
                 return "ok";
             }
         });
+    }
+
+    //让该方法在多线程的环境下，被异步的调用
+    @Async
+    public void execute1() {
+        logger.debug("execute1");
+    }
+
+    //@Scheduled(initialDelay = 10000,fixedRate = 1000)//延迟10秒执行，频率1000毫秒
+    public void execute2() {
+        logger.debug("execute2");
     }
 }

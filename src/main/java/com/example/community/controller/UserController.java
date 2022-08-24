@@ -176,58 +176,58 @@ public class UserController implements CommunityConstant {
 
     //我的帖子
     @GetMapping("/mypost/{userId}")
-    public String getMyPost(@PathVariable("userId") int userId, Page page,Model model) {
-        User user= userService.findUserById(userId);
-        if (user==null) {
+    public String getMyPost(@PathVariable("userId") int userId, Page page, Model model) {
+        User user = userService.findUserById(userId);
+        if (user == null) {
             throw new RuntimeException("该用户不存在!");
         }
         //用户
-        model.addAttribute("user",user);
+        model.addAttribute("user", user);
 
-        page.setPath("/user/mypost/"+userId);
+        page.setPath("/user/mypost/" + userId);
         page.setRows(discussPostService.findDiscussPostRows(userId));
 
         //帖子列表
-        List<Map<String,Object>> mypostVO=new ArrayList<>();
-        List<DiscussPost> mypost=discussPostService.findDiscussPosts(userId,page.getOffset(),page.getLimit());
-        if (mypost!=null) {
+        List<Map<String, Object>> mypostVO = new ArrayList<>();
+        List<DiscussPost> mypost = discussPostService.findDiscussPosts(userId, page.getOffset(), page.getLimit(), 0);
+        if (mypost != null) {
             for (DiscussPost post : mypost) {
-                Map<String,Object> map=new HashMap<>();
-                map.put("post",post);
-                map.put("likeCount",likeService.findEntityLikeCount(ENTITY_TYPE_POST, post.getId()));
+                Map<String, Object> map = new HashMap<>();
+                map.put("post", post);
+                map.put("likeCount", likeService.findEntityLikeCount(ENTITY_TYPE_POST, post.getId()));
                 mypostVO.add(map);
             }
         }
-        model.addAttribute("posts",mypostVO);
+        model.addAttribute("posts", mypostVO);
         return "/site/my-post";
     }
 
     //我的评论（只包括对帖子发布的评论）
     @GetMapping("/myreply/{userId}")
-    public String getMyReply(@PathVariable("userId") int userId,Page page,Model model) {
-        User user= userService.findUserById(userId);
-        if (user==null) {
+    public String getMyReply(@PathVariable("userId") int userId, Page page, Model model) {
+        User user = userService.findUserById(userId);
+        if (user == null) {
             throw new RuntimeException("该用户不存在!");
         }
         //用户
-        model.addAttribute("user",user);
+        model.addAttribute("user", user);
 
-        page.setPath("/user/myreply/"+userId);
+        page.setPath("/user/myreply/" + userId);
         page.setRows(commentService.findCommentsCountByUser(userId));
 
         //评论列表
-        List<Comment> myReplys=commentService.findCommentsByUser(userId,page.getOffset(),page.getLimit());
-        List<Map<String,Object>> myReplysVO=new ArrayList<>();
-        if (myReplys!=null) {
+        List<Comment> myReplys = commentService.findCommentsByUser(userId, page.getOffset(), page.getLimit());
+        List<Map<String, Object>> myReplysVO = new ArrayList<>();
+        if (myReplys != null) {
             for (Comment reply : myReplys) {
-                Map<String,Object> map=new HashMap<>();
-                map.put("reply",reply);
-                DiscussPost discussPost=discussPostService.findDiscussPostById(reply.getEntityId());
-                map.put("discusspost",discussPost);
+                Map<String, Object> map = new HashMap<>();
+                map.put("reply", reply);
+                DiscussPost discussPost = discussPostService.findDiscussPostById(reply.getEntityId());
+                map.put("discusspost", discussPost);
                 myReplysVO.add(map);
             }
         }
-        model.addAttribute("replys",myReplysVO);
+        model.addAttribute("replys", myReplysVO);
         return "/site/my-reply";
     }
 }
