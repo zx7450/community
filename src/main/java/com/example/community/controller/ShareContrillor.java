@@ -43,6 +43,11 @@ public class ShareContrillor implements CommunityConstant {
     @Value("${wk.image.storage}")
     private String wkImageStorage;
 
+    @Value("${qiniu.bucket.share.url}")
+    private String shareBucketUrl;
+
+
+
     //生成长图
     @GetMapping("/share")
     @ResponseBody
@@ -61,10 +66,12 @@ public class ShareContrillor implements CommunityConstant {
 
         //返回访问路径
         Map<String, Object> map = new HashMap<>();
-        map.put("shareUrl", domain + contextPath + "/share/image/" + fileName);
+        //map.put("shareUrl", domain + contextPath + "/share/image/" + fileName);
+        map.put("shareUrl",shareBucketUrl+"/"+fileName);
         return CommunityUtil.getJSONString(0, null, map);
     }
 
+    //废弃（直接从七牛云获取）
     //获取长图
     @GetMapping("/share/image/{fileName}")
     public void getShareImage(@PathVariable("fileName") String fileName, HttpServletResponse response) {
